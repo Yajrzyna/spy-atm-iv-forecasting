@@ -1,0 +1,712 @@
+Run     : 004
+Date    : 2026-10-21 22:04:27
+Models  : OLS | MLP | LSTM | Stacking  [Rolling Window / IV]
+
+Hyperparameters
+---------------
+  MLP_HIDDEN_DIMS   : [64, 32]
+  MLP_DROPOUT       : 0.04
+  MLP_LEARNING_RATE : 0.0025
+  SEQ_LEN           : = obs_bars (per combination)
+  HIDDEN_SIZE       : 448
+  NUM_LAYERS        : 2
+  LSTM_DROPOUT      : 0.18
+  LSTM_LEARNING_RATE: 0.0007
+  BATCH_SIZE        : 512
+  MLP_PATIENCE      : 30
+  LSTM_PATIENCE     : 20
+  RIDGE_ALPHA       : 0.001
+
+TABLE 1 — Primary Metrics (test set 2023)
+----------------------------------------------------------------------
+ obs_bars  fcast_bars type model     r2      mse      mae  hit_rate  r2_oos_rw  vega_sharpe
+        1          10 Call   OLS 0.9233 0.000196 0.009779    0.7671     0.2101       0.5808
+        1          10 Call   MLP 0.9163 0.000214 0.010176    0.7160     0.1372       0.4191
+        1          10 Call  LSTM 0.9314 0.000175 0.009034    0.7577     0.2927       0.5505
+        1          10 Call Stack 0.9322 0.000173 0.008996    0.7726     0.3011       0.5942
+        1          10  Put   OLS 0.9157 0.000174 0.009578    0.7097     0.2959       0.4275
+        1          10  Put   MLP 0.9171 0.000171 0.009303    0.7876     0.3073       0.6263
+        1          10  Put  LSTM 0.9258 0.000153 0.008852    0.8304     0.3805       0.7368
+        1          10  Put Stack 0.9269 0.000151 0.008732    0.8252     0.3891       0.7333
+        2           9 Call   OLS 0.9309 0.000177 0.009228    0.7488     0.1646       0.5145
+        2           9 Call   MLP 0.9234 0.000196 0.010083    0.7082     0.0742       0.4162
+        2           9 Call  LSTM 0.9409 0.000151 0.008351    0.7432     0.2854       0.4910
+        2           9 Call Stack 0.9407 0.000152 0.008409    0.7525     0.2828       0.5229
+        2           9  Put   OLS 0.9245 0.000156 0.008829    0.6940     0.2387       0.4002
+        2           9  Put   MLP 0.9269 0.000151 0.008439    0.7630     0.2630       0.5378
+        2           9  Put  LSTM 0.9366 0.000131 0.007938    0.7447     0.3604       0.5090
+        2           9  Put Stack 0.9366 0.000131 0.007929    0.7421     0.3608       0.5159
+        3           8 Call   OLS 0.9444 0.000142 0.008137    0.7205     0.1998       0.4340
+        3           8 Call   MLP 0.9338 0.000169 0.009012    0.6660     0.0475       0.2937
+        3           8 Call  LSTM 0.9480 0.000133 0.007845    0.7261     0.2517       0.4518
+        3           8 Call Stack 0.9475 0.000134 0.007841    0.7279     0.2443       0.4361
+        3           8  Put   OLS 0.9354 0.000133 0.008096    0.6590     0.2092       0.3323
+        3           8  Put   MLP 0.9268 0.000151 0.008672    0.6277     0.1045       0.2647
+        3           8  Put  LSTM 0.9376 0.000129 0.007784    0.6944     0.2371       0.3909
+        3           8  Put Stack 0.9415 0.000121 0.007455    0.7275     0.2839       0.4687
+        4           7 Call   OLS 0.9496 0.000129 0.007628    0.6918     0.1640       0.3396
+        4           7 Call   MLP 0.9474 0.000134 0.007982    0.6765     0.1277       0.3087
+        4           7 Call  LSTM 0.9520 0.000123 0.007429    0.7003     0.2029       0.3473
+        4           7 Call Stack 0.9508 0.000126 0.007614    0.7205     0.1836       0.3806
+        4           7  Put   OLS 0.9399 0.000124 0.007645    0.6586     0.2085       0.3053
+        4           7  Put   MLP 0.9300 0.000144 0.008288    0.5859     0.0776       0.1788
+        4           7  Put  LSTM 0.9394 0.000125 0.007695    0.7339     0.2010       0.4346
+        4           7  Put Stack 0.9429 0.000118 0.007070    0.7179     0.2481       0.4031
+        5           6 Call   OLS 0.9546 0.000116 0.007162    0.6735     0.1893       0.2811
+        5           6 Call   MLP 0.9464 0.000137 0.007949    0.6258     0.0439       0.1636
+        5           6 Call  LSTM 0.9538 0.000118 0.007097    0.7056     0.1750       0.3362
+        5           6 Call Stack 0.9538 0.000118 0.007089    0.6970     0.1748       0.3207
+        5           6  Put   OLS 0.9427 0.000118 0.007303    0.6381     0.1956       0.2545
+        5           6  Put   MLP 0.9381 0.000128 0.007391    0.7097     0.1304       0.3583
+        5           6  Put  LSTM 0.9358 0.000132 0.007969    0.7283     0.0985       0.3893
+        5           6  Put Stack 0.9435 0.000116 0.006949    0.7048     0.2065       0.3569
+        6           5 Call   OLS 0.9554 0.000114 0.006948    0.6623     0.2233       0.2990
+        6           5 Call   MLP 0.9504 0.000127 0.007591    0.6455     0.1360       0.2695
+        6           5 Call  LSTM 0.9539 0.000118 0.007215    0.6936     0.1963       0.3451
+        6           5 Call Stack 0.9545 0.000116 0.007159    0.6806     0.2063       0.3307
+        6           5  Put   OLS 0.9468 0.000110 0.006815    0.6545     0.2004       0.2622
+        6           5  Put   MLP 0.9432 0.000117 0.007084    0.6519     0.1472       0.2745
+        6           5  Put  LSTM 0.9477 0.000108 0.006644    0.6649     0.2145       0.2713
+        6           5  Put Stack 0.9484 0.000106 0.006556    0.6724     0.2246       0.3083
+        7           4 Call   OLS 0.9574 0.000109 0.006741    0.6526     0.2374       0.2717
+        7           4 Call   MLP 0.9511 0.000125 0.007585    0.6101     0.1235       0.1796
+        7           4 Call  LSTM 0.9572 0.000109 0.006878    0.6459     0.2338       0.2709
+        7           4 Call Stack 0.9575 0.000109 0.006816    0.6623     0.2384       0.2807
+        7           4  Put   OLS 0.9486 0.000106 0.006624    0.6351     0.1692       0.2187
+        7           4  Put   MLP 0.9415 0.000121 0.007205    0.6347     0.0535       0.2093
+        7           4  Put  LSTM 0.9490 0.000105 0.006495    0.6560     0.1751       0.2488
+        7           4  Put Stack 0.9464 0.000110 0.006772    0.6299     0.1340       0.2223
+        8           3 Call   OLS 0.9617 0.000098 0.006316    0.6474     0.2275       0.2692
+        8           3 Call   MLP 0.9535 0.000119 0.007399    0.5609     0.0606       0.1131
+        8           3 Call  LSTM 0.9588 0.000105 0.006523    0.6556     0.1677       0.2602
+        8           3 Call Stack 0.9567 0.000111 0.007045    0.6329     0.1259       0.2079
+        8           3  Put   OLS 0.9536 0.000096 0.006221    0.6098     0.1579       0.1957
+        8           3  Put   MLP 0.9408 0.000122 0.007100    0.5270    -0.0748       0.0387
+        8           3  Put  LSTM 0.9513 0.000100 0.006356    0.6690     0.1159       0.2372
+        8           3  Put Stack 0.9480 0.000107 0.006470    0.5740     0.0567       0.1199
+        9           2 Call   OLS 0.9691 0.000079 0.005633    0.6146     0.1434       0.1442
+        9           2 Call   MLP 0.9604 0.000101 0.006801    0.5475    -0.0992       0.0700
+        9           2 Call  LSTM 0.9632 0.000094 0.006265    0.5960    -0.0225       0.1144
+        9           2 Call Stack 0.9646 0.000090 0.006117    0.5762     0.0186       0.0993
+        9           2  Put   OLS 0.9605 0.000081 0.005543    0.5960     0.1833       0.1390
+        9           2  Put   MLP 0.9530 0.000097 0.006233    0.5606     0.0282       0.0862
+        9           2  Put  LSTM 0.9553 0.000092 0.006141    0.6068     0.0766       0.1273
+        9           2  Put Stack 0.9552 0.000092 0.005957    0.5673     0.0739       0.0908
+       10           1 Call   OLS 0.9781 0.000056 0.004798    0.6072     0.0677       0.0867
+       10           1 Call   MLP 0.9690 0.000079 0.006151    0.5188    -0.3212      -0.0677
+       10           1 Call  LSTM 0.9726 0.000070 0.005317    0.5777    -0.1674       0.0348
+       10           1 Call Stack 0.9742 0.000066 0.005329    0.5893    -0.1010       0.0662
+       10           1  Put   OLS 0.9722 0.000057 0.004640    0.6004     0.1539       0.1301
+       10           1  Put   MLP 0.9615 0.000079 0.005512    0.5904    -0.1744       0.0587
+       10           1  Put  LSTM 0.9660 0.000070 0.005051    0.5565    -0.0363       0.0244
+       10           1  Put Stack 0.9632 0.000076 0.005586    0.5162    -0.1228      -0.0207
+
+TABLE 4 — Top 15 Configurations by R²_OOS_RW
+----------------------------------------------------------------------
+ obs_bars  fcast_bars type model     r2      mse      mae  hit_rate  r2_oos_rw  vega_sharpe
+        1          10  Put Stack 0.9269 0.000151 0.008732    0.8252     0.3891       0.7333
+        1          10  Put  LSTM 0.9258 0.000153 0.008852    0.8304     0.3805       0.7368
+        2           9  Put Stack 0.9366 0.000131 0.007929    0.7421     0.3608       0.5159
+        2           9  Put  LSTM 0.9366 0.000131 0.007938    0.7447     0.3604       0.5090
+        1          10  Put   MLP 0.9171 0.000171 0.009303    0.7876     0.3073       0.6263
+        1          10 Call Stack 0.9322 0.000173 0.008996    0.7726     0.3011       0.5942
+        1          10  Put   OLS 0.9157 0.000174 0.009578    0.7097     0.2959       0.4275
+        1          10 Call  LSTM 0.9314 0.000175 0.009034    0.7577     0.2927       0.5505
+        2           9 Call  LSTM 0.9409 0.000151 0.008351    0.7432     0.2854       0.4910
+        3           8  Put Stack 0.9415 0.000121 0.007455    0.7275     0.2839       0.4687
+        2           9 Call Stack 0.9407 0.000152 0.008409    0.7525     0.2828       0.5229
+        2           9  Put   MLP 0.9269 0.000151 0.008439    0.7630     0.2630       0.5378
+        3           8 Call  LSTM 0.9480 0.000133 0.007845    0.7261     0.2517       0.4518
+        4           7  Put Stack 0.9429 0.000118 0.007070    0.7179     0.2481       0.4031
+        3           8 Call Stack 0.9475 0.000134 0.007841    0.7279     0.2443       0.4361
+
+TABLE 5 — Model Ranking (mean across all combinations)
+----------------------------------------------------------------------
+model  r2_oos_rw  vega_sharpe  hit_rate
+  OLS     0.1920       0.2943    0.6620
+Stack     0.1765       0.3219    0.6745
+ LSTM     0.1719       0.3286    0.6843
+  MLP     0.0596       0.2400    0.6357
+
+TABLE 2 — R²_OOS_RW by DTE Bucket
+----------------------------------------------------------------------
+ obs_bars  fcast_bars type model regime  r2_oos_rw
+        1          10 Call   OLS    1-2   0.185515
+        1          10 Call   OLS    3-5   0.263318
+        1          10 Call   OLS    6-7   0.183512
+        1          10 Call   MLP    1-2   0.208941
+        1          10 Call   MLP    3-5   0.107013
+        1          10 Call   MLP    6-7  -0.236603
+        1          10 Call  LSTM    1-2   0.311006
+        1          10 Call  LSTM    3-5   0.294537
+        1          10 Call  LSTM    6-7   0.163114
+        1          10 Call Stack    1-2   0.317661
+        1          10 Call Stack    3-5   0.320263
+        1          10 Call Stack    6-7   0.120596
+        1          10  Put   OLS    1-2   0.369332
+        1          10  Put   OLS    3-5   0.235773
+        1          10  Put   OLS    6-7   0.044450
+        1          10  Put   MLP    1-2   0.370212
+        1          10  Put   MLP    3-5   0.278433
+        1          10  Put   MLP    6-7   0.023092
+        1          10  Put  LSTM    1-2   0.415867
+        1          10  Put  LSTM    3-5   0.410216
+        1          10  Put  LSTM    6-7   0.082378
+        1          10  Put Stack    1-2   0.414979
+        1          10  Put Stack    3-5   0.400291
+        1          10  Put Stack    6-7   0.202194
+        2           9 Call   OLS    1-2   0.145132
+        2           9 Call   OLS    3-5   0.210254
+        2           9 Call   OLS    6-7   0.132644
+        2           9 Call   MLP    1-2   0.203749
+        2           9 Call   MLP    3-5  -0.051223
+        2           9 Call   MLP    6-7  -0.346564
+        2           9 Call  LSTM    1-2   0.332263
+        2           9 Call  LSTM    3-5   0.252151
+        2           9 Call  LSTM    6-7   0.090272
+        2           9 Call Stack    1-2   0.331893
+        2           9 Call Stack    3-5   0.255095
+        2           9 Call Stack    6-7   0.052810
+        2           9  Put   OLS    1-2   0.278128
+        2           9  Put   OLS    3-5   0.224877
+        2           9  Put   OLS    6-7   0.048959
+        2           9  Put   MLP    1-2   0.297343
+        2           9  Put   MLP    3-5   0.233230
+        2           9  Put   MLP    6-7   0.147112
+        2           9  Put  LSTM    1-2   0.406758
+        2           9  Put  LSTM    3-5   0.327151
+        2           9  Put  LSTM    6-7   0.184305
+        2           9  Put Stack    1-2   0.407929
+        2           9  Put Stack    3-5   0.325344
+        2           9  Put Stack    6-7   0.186964
+        3           8 Call   OLS    1-2   0.222245
+        3           8 Call   OLS    3-5   0.182712
+        3           8 Call   OLS    6-7   0.101465
+        3           8 Call   MLP    1-2   0.120036
+        3           8 Call   MLP    3-5  -0.051395
+        3           8 Call   MLP    6-7  -0.125556
+        3           8 Call  LSTM    1-2   0.297022
+        3           8 Call  LSTM    3-5   0.209245
+        3           8 Call  LSTM    6-7   0.079621
+        3           8 Call Stack    1-2   0.287636
+        3           8 Call Stack    3-5   0.194425
+        3           8 Call Stack    6-7   0.111148
+        3           8  Put   OLS    1-2   0.267026
+        3           8  Put   OLS    3-5   0.168293
+        3           8  Put   OLS    6-7  -0.025084
+        3           8  Put   MLP    1-2   0.191252
+        3           8  Put   MLP    3-5  -0.001210
+        3           8  Put   MLP    6-7  -0.132599
+        3           8  Put  LSTM    1-2   0.270282
+        3           8  Put  LSTM    3-5   0.214396
+        3           8  Put  LSTM    6-7   0.101119
+        3           8  Put Stack    1-2   0.310456
+        3           8  Put Stack    3-5   0.275333
+        3           8  Put Stack    6-7   0.150027
+        4           7 Call   OLS    1-2   0.211999
+        4           7 Call   OLS    3-5   0.095644
+        4           7 Call   OLS    6-7   0.041482
+        4           7 Call   MLP    1-2   0.210684
+        4           7 Call   MLP    3-5   0.016218
+        4           7 Call   MLP    6-7  -0.103754
+        4           7 Call  LSTM    1-2   0.248710
+        4           7 Call  LSTM    3-5   0.151116
+        4           7 Call  LSTM    6-7   0.045286
+        4           7 Call Stack    1-2   0.255998
+        4           7 Call Stack    3-5   0.091874
+        4           7 Call Stack    6-7  -0.035807
+        4           7  Put   OLS    1-2   0.252438
+        4           7  Put   OLS    3-5   0.177567
+        4           7  Put   OLS    6-7   0.035278
+        4           7  Put   MLP    1-2   0.193148
+        4           7  Put   MLP    3-5   0.048364
+        4           7  Put   MLP    6-7  -0.504111
+        4           7  Put  LSTM    1-2   0.248194
+        4           7  Put  LSTM    3-5   0.228751
+        4           7  Put  LSTM    6-7  -0.132682
+        4           7  Put Stack    1-2   0.257612
+        4           7  Put Stack    3-5   0.274540
+        4           7  Put Stack    6-7   0.129931
+        5           6 Call   OLS    1-2   0.242142
+        5           6 Call   OLS    3-5   0.112229
+        5           6 Call   OLS    6-7   0.057986
+        5           6 Call   MLP    1-2   0.158719
+        5           6 Call   MLP    3-5  -0.141878
+        5           6 Call   MLP    6-7  -0.189507
+        5           6 Call  LSTM    1-2   0.220511
+        5           6 Call  LSTM    3-5   0.111450
+        5           6 Call  LSTM    6-7   0.052878
+        5           6 Call Stack    1-2   0.232247
+        5           6 Call Stack    3-5   0.077593
+        5           6 Call Stack    6-7   0.069981
+        5           6  Put   OLS    1-2   0.254704
+        5           6  Put   OLS    3-5   0.129305
+        5           6  Put   OLS    6-7   0.027277
+        5           6  Put   MLP    1-2   0.158843
+        5           6  Put   MLP    3-5   0.113080
+        5           6  Put   MLP    6-7   0.017416
+        5           6  Put  LSTM    1-2   0.222847
+        5           6  Put  LSTM    3-5   0.013999
+        5           6  Put  LSTM    6-7  -0.376490
+        5           6  Put Stack    1-2   0.217399
+        5           6  Put Stack    3-5   0.220781
+        5           6  Put Stack    6-7   0.117102
+        6           5 Call   OLS    1-2   0.261733
+        6           5 Call   OLS    3-5   0.176246
+        6           5 Call   OLS    6-7   0.103728
+        6           5 Call   MLP    1-2   0.224421
+        6           5 Call   MLP    3-5   0.021391
+        6           5 Call   MLP    6-7  -0.119492
+        6           5 Call  LSTM    1-2   0.239192
+        6           5 Call  LSTM    3-5   0.153626
+        6           5 Call  LSTM    6-7   0.033497
+        6           5 Call Stack    1-2   0.256884
+        6           5 Call Stack    3-5   0.137499
+        6           5 Call Stack    6-7   0.070278
+        6           5  Put   OLS    1-2   0.269485
+        6           5  Put   OLS    3-5   0.092501
+        6           5  Put   OLS    6-7   0.036535
+        6           5  Put   MLP    1-2   0.207935
+        6           5  Put   MLP    3-5   0.064826
+        6           5  Put   MLP    6-7  -0.022622
+        6           5  Put  LSTM    1-2   0.270081
+        6           5  Put  LSTM    3-5   0.138746
+        6           5  Put  LSTM    6-7   0.059856
+        6           5  Put Stack    1-2   0.268167
+        6           5  Put Stack    3-5   0.175969
+        6           5  Put Stack    6-7   0.081676
+        7           4 Call   OLS    1-2   0.276813
+        7           4 Call   OLS    3-5   0.178782
+        7           4 Call   OLS    6-7   0.141529
+        7           4 Call   MLP    1-2   0.198323
+        7           4 Call   MLP    3-5   0.035422
+        7           4 Call   MLP    6-7  -0.123928
+        7           4 Call  LSTM    1-2   0.289265
+        7           4 Call  LSTM    3-5   0.143417
+        7           4 Call  LSTM    6-7   0.120918
+        7           4 Call Stack    1-2   0.289127
+        7           4 Call Stack    3-5   0.163242
+        7           4 Call Stack    6-7   0.113372
+        7           4  Put   OLS    1-2   0.238536
+        7           4  Put   OLS    3-5   0.078193
+        7           4  Put   OLS    6-7  -0.021367
+        7           4  Put   MLP    1-2   0.124828
+        7           4  Put   MLP    3-5  -0.072527
+        7           4  Put   MLP    6-7  -0.076820
+        7           4  Put  LSTM    1-2   0.207260
+        7           4  Put  LSTM    3-5   0.140309
+        7           4  Put  LSTM    6-7   0.071989
+        7           4  Put Stack    1-2   0.176230
+        7           4  Put Stack    3-5   0.058184
+        7           4  Put Stack    6-7   0.059182
+        8           3 Call   OLS    1-2   0.258344
+        8           3 Call   OLS    3-5   0.186002
+        8           3 Call   OLS    6-7   0.134939
+        8           3 Call   MLP    1-2   0.188128
+        8           3 Call   MLP    3-5  -0.062154
+        8           3 Call   MLP    6-7  -0.470008
+        8           3 Call  LSTM    1-2   0.204611
+        8           3 Call  LSTM    3-5   0.104987
+        8           3 Call  LSTM    6-7   0.095206
+        8           3 Call Stack    1-2   0.217480
+        8           3 Call Stack    3-5   0.037509
+        8           3 Call Stack    6-7  -0.254568
+        8           3  Put   OLS    1-2   0.198965
+        8           3  Put   OLS    3-5   0.125350
+        8           3  Put   OLS    6-7   0.014514
+        8           3  Put   MLP    1-2  -0.103572
+        8           3  Put   MLP    3-5   0.007259
+        8           3  Put   MLP    6-7  -0.101615
+        8           3  Put  LSTM    1-2   0.116735
+        8           3  Put  LSTM    3-5   0.166965
+        8           3  Put  LSTM    6-7   0.001549
+        8           3  Put Stack    1-2   0.013242
+        8           3  Put Stack    3-5   0.149311
+        8           3  Put Stack    6-7   0.083472
+        9           2 Call   OLS    1-2   0.156101
+        9           2 Call   OLS    3-5   0.139742
+        9           2 Call   OLS    6-7   0.070181
+        9           2 Call   MLP    1-2   0.006788
+        9           2 Call   MLP    3-5  -0.232470
+        9           2 Call   MLP    6-7  -0.387680
+        9           2 Call  LSTM    1-2  -0.012759
+        9           2 Call  LSTM    3-5  -0.025639
+        9           2 Call  LSTM    6-7  -0.077760
+        9           2 Call Stack    1-2   0.060500
+        9           2 Call Stack    3-5  -0.031816
+        9           2 Call Stack    6-7  -0.101998
+        9           2  Put   OLS    1-2   0.212681
+        9           2  Put   OLS    3-5   0.178561
+        9           2  Put   OLS    6-7   0.030401
+        9           2  Put   MLP    1-2   0.024667
+        9           2  Put   MLP    3-5   0.078062
+        9           2  Put   MLP    6-7  -0.072721
+        9           2  Put  LSTM    1-2   0.107491
+        9           2  Put  LSTM    3-5   0.152536
+        9           2  Put  LSTM    6-7  -0.280641
+        9           2  Put Stack    1-2   0.038925
+        9           2  Put Stack    3-5   0.164760
+        9           2  Put Stack    6-7   0.049480
+       10           1 Call   OLS    1-2   0.072199
+       10           1 Call   OLS    3-5   0.072122
+       10           1 Call   OLS    6-7   0.024218
+       10           1 Call   MLP    1-2  -0.211637
+       10           1 Call   MLP    3-5  -0.405522
+       10           1 Call   MLP    6-7  -0.753903
+       10           1 Call  LSTM    1-2  -0.194508
+       10           1 Call  LSTM    3-5  -0.087592
+       10           1 Call  LSTM    6-7  -0.249558
+       10           1 Call Stack    1-2  -0.067904
+       10           1 Call Stack    3-5  -0.117043
+       10           1 Call Stack    6-7  -0.261552
+       10           1  Put   OLS    1-2   0.177365
+       10           1  Put   OLS    3-5   0.124673
+       10           1  Put   OLS    6-7   0.100825
+       10           1  Put   MLP    1-2  -0.183054
+       10           1  Put   MLP    3-5  -0.104035
+       10           1  Put   MLP    6-7  -0.289999
+       10           1  Put  LSTM    1-2  -0.060383
+       10           1  Put  LSTM    3-5   0.024650
+       10           1  Put  LSTM    6-7  -0.052652
+       10           1  Put Stack    1-2  -0.102063
+       10           1  Put Stack    3-5  -0.125761
+       10           1  Put Stack    6-7  -0.221342
+
+TABLE 3 — R²_OOS_RW by VIX Regime (terciles per combination)
+----------------------------------------------------------------------
+ obs_bars  fcast_bars type model regime  r2_oos_rw
+        1          10 Call   OLS    Low   0.015899
+        1          10 Call   OLS    Mid   0.106005
+        1          10 Call   OLS   High   0.322904
+        1          10 Call   MLP    Low  -0.072285
+        1          10 Call   MLP    Mid  -0.089350
+        1          10 Call   MLP   High   0.316894
+        1          10 Call  LSTM    Low   0.214397
+        1          10 Call  LSTM    Mid   0.129734
+        1          10 Call  LSTM   High   0.399616
+        1          10 Call Stack    Low   0.195399
+        1          10 Call Stack    Mid   0.159419
+        1          10 Call Stack   High   0.405637
+        1          10  Put   OLS    Low   0.131842
+        1          10  Put   OLS    Mid   0.364977
+        1          10  Put   OLS   High   0.314582
+        1          10  Put   MLP    Low   0.358746
+        1          10  Put   MLP    Mid   0.416944
+        1          10  Put   MLP   High   0.233843
+        1          10  Put  LSTM    Low   0.342276
+        1          10  Put  LSTM    Mid   0.444717
+        1          10  Put  LSTM   High   0.360182
+        1          10  Put Stack    Low   0.374257
+        1          10  Put Stack    Mid   0.475006
+        1          10  Put Stack   High   0.349755
+        2           9 Call   OLS    Low  -0.039784
+        2           9 Call   OLS    Mid   0.139079
+        2           9 Call   OLS   High   0.246198
+        2           9 Call   MLP    Low  -0.192089
+        2           9 Call   MLP    Mid   0.062394
+        2           9 Call   MLP   High   0.168561
+        2           9 Call  LSTM    Low   0.174832
+        2           9 Call  LSTM    Mid   0.256762
+        2           9 Call  LSTM   High   0.337880
+        2           9 Call Stack    Low   0.150405
+        2           9 Call Stack    Mid   0.261353
+        2           9 Call Stack   High   0.338415
+        2           9  Put   OLS    Low   0.143651
+        2           9  Put   OLS    Mid   0.292242
+        2           9  Put   OLS   High   0.240412
+        2           9  Put   MLP    Low   0.328162
+        2           9  Put   MLP    Mid   0.277656
+        2           9  Put   MLP   High   0.233696
+        2           9  Put  LSTM    Low   0.401242
+        2           9  Put  LSTM    Mid   0.450893
+        2           9  Put  LSTM   High   0.297476
+        2           9  Put Stack    Low   0.401173
+        2           9  Put Stack    Mid   0.454367
+        2           9  Put Stack   High   0.296460
+        3           8 Call   OLS    Low  -0.006869
+        3           8 Call   OLS    Mid   0.222559
+        3           8 Call   OLS   High   0.255749
+        3           8 Call   MLP    Low  -0.201703
+        3           8 Call   MLP    Mid  -0.056861
+        3           8 Call   MLP   High   0.190995
+        3           8 Call  LSTM    Low   0.106742
+        3           8 Call  LSTM    Mid   0.278486
+        3           8 Call  LSTM   High   0.284685
+        3           8 Call Stack    Low   0.064514
+        3           8 Call Stack    Mid   0.248193
+        3           8 Call Stack   High   0.302260
+        3           8  Put   OLS    Low   0.066261
+        3           8  Put   OLS    Mid   0.265985
+        3           8  Put   OLS   High   0.221961
+        3           8  Put   MLP    Low  -0.072952
+        3           8  Put   MLP    Mid   0.250641
+        3           8  Put   MLP   High   0.081379
+        3           8  Put  LSTM    Low   0.277097
+        3           8  Put  LSTM    Mid   0.296037
+        3           8  Put  LSTM   High   0.194851
+        3           8  Put Stack    Low   0.331631
+        3           8  Put Stack    Mid   0.358064
+        3           8  Put Stack   High   0.231391
+        4           7 Call   OLS    Low  -0.004233
+        4           7 Call   OLS    Mid   0.215239
+        4           7 Call   OLS   High   0.192179
+        4           7 Call   MLP    Low  -0.070642
+        4           7 Call   MLP    Mid   0.133175
+        4           7 Call   MLP   High   0.193251
+        4           7 Call  LSTM    Low   0.090444
+        4           7 Call  LSTM    Mid   0.250867
+        4           7 Call  LSTM   High   0.213710
+        4           7 Call Stack    Low  -0.024744
+        4           7 Call Stack    Mid   0.218443
+        4           7 Call Stack   High   0.235264
+        4           7  Put   OLS    Low   0.067830
+        4           7  Put   OLS    Mid   0.227031
+        4           7  Put   OLS   High   0.238152
+        4           7  Put   MLP    Low  -0.286372
+        4           7  Put   MLP    Mid  -0.029654
+        4           7  Put   MLP   High   0.222594
+        4           7  Put  LSTM    Low   0.150145
+        4           7  Put  LSTM    Mid   0.179861
+        4           7  Put  LSTM   High   0.224032
+        4           7  Put Stack    Low   0.220934
+        4           7  Put Stack    Mid   0.237829
+        4           7  Put Stack   High   0.259890
+        5           6 Call   OLS    Low   0.007315
+        5           6 Call   OLS    Mid   0.220085
+        5           6 Call   OLS   High   0.230872
+        5           6 Call   MLP    Low  -0.218456
+        5           6 Call   MLP    Mid   0.017329
+        5           6 Call   MLP   High   0.138520
+        5           6 Call  LSTM    Low   0.059081
+        5           6 Call  LSTM    Mid   0.143159
+        5           6 Call  LSTM   High   0.226603
+        5           6 Call Stack    Low   0.026188
+        5           6 Call Stack    Mid   0.142224
+        5           6 Call Stack   High   0.236932
+        5           6  Put   OLS    Low   0.075559
+        5           6  Put   OLS    Mid   0.212397
+        5           6  Put   OLS   High   0.219227
+        5           6  Put   MLP    Low   0.064425
+        5           6  Put   MLP    Mid  -0.003696
+        5           6  Put   MLP   High   0.197950
+        5           6  Put  LSTM    Low  -0.060890
+        5           6  Put  LSTM    Mid  -0.009641
+        5           6  Put  LSTM   High   0.179512
+        5           6  Put Stack    Low   0.236254
+        5           6  Put Stack    Mid   0.128679
+        5           6  Put Stack   High   0.228655
+        6           5 Call   OLS    Low   0.083606
+        6           5 Call   OLS    Mid   0.265837
+        6           5 Call   OLS   High   0.244197
+        6           5 Call   MLP    Low  -0.212914
+        6           5 Call   MLP    Mid   0.162718
+        6           5 Call   MLP   High   0.224679
+        6           5 Call  LSTM    Low   0.006743
+        6           5 Call  LSTM    Mid   0.133314
+        6           5 Call  LSTM   High   0.279833
+        6           5 Call Stack    Low  -0.026554
+        6           5 Call Stack    Mid   0.203183
+        6           5 Call Stack   High   0.275146
+        6           5  Put   OLS    Low   0.138315
+        6           5  Put   OLS    Mid   0.232538
+        6           5  Put   OLS   High   0.204014
+        6           5  Put   MLP    Low   0.074423
+        6           5  Put   MLP    Mid   0.142990
+        6           5  Put   MLP   High   0.166967
+        6           5  Put  LSTM    Low   0.242676
+        6           5  Put  LSTM    Mid   0.230302
+        6           5  Put  LSTM   High   0.201569
+        6           5  Put Stack    Low   0.245868
+        6           5  Put Stack    Mid   0.258734
+        6           5  Put Stack   High   0.206673
+        7           4 Call   OLS    Low   0.111512
+        7           4 Call   OLS    Mid   0.271998
+        7           4 Call   OLS   High   0.256789
+        7           4 Call   MLP    Low  -0.186274
+        7           4 Call   MLP    Mid   0.087442
+        7           4 Call   MLP   High   0.223963
+        7           4 Call  LSTM    Low   0.069672
+        7           4 Call  LSTM    Mid   0.246814
+        7           4 Call  LSTM   High   0.273068
+        7           4 Call Stack    Low   0.059055
+        7           4 Call Stack    Mid   0.265743
+        7           4 Call Stack   High   0.275449
+        7           4  Put   OLS    Low   0.088022
+        7           4  Put   OLS    Mid   0.235913
+        7           4  Put   OLS   High   0.161302
+        7           4  Put   MLP    Low  -0.075636
+        7           4  Put   MLP    Mid   0.166706
+        7           4  Put   MLP   High   0.038196
+        7           4  Put  LSTM    Low   0.151215
+        7           4  Put  LSTM    Mid   0.249301
+        7           4  Put  LSTM   High   0.150950
+        7           4  Put Stack    Low   0.062045
+        7           4  Put Stack    Mid   0.253198
+        7           4  Put Stack   High   0.102971
+        8           3 Call   OLS    Low   0.026745
+        8           3 Call   OLS    Mid   0.312078
+        8           3 Call   OLS   High   0.235858
+        8           3 Call   MLP    Low  -0.229733
+        8           3 Call   MLP    Mid   0.117386
+        8           3 Call   MLP   High   0.106793
+        8           3 Call  LSTM    Low  -0.054695
+        8           3 Call  LSTM    Mid   0.234472
+        8           3 Call  LSTM   High   0.190912
+        8           3 Call Stack    Low  -0.211001
+        8           3 Call Stack    Mid   0.232622
+        8           3 Call Stack   High   0.158155
+        8           3  Put   OLS    Low   0.069413
+        8           3  Put   OLS    Mid   0.211162
+        8           3  Put   OLS   High   0.159396
+        8           3  Put   MLP    Low  -0.198866
+        8           3  Put   MLP    Mid  -0.190717
+        8           3  Put   MLP   High  -0.003450
+        8           3  Put  LSTM    Low   0.083621
+        8           3  Put  LSTM    Mid   0.151423
+        8           3  Put  LSTM   High   0.110501
+        8           3  Put Stack    Low  -0.042728
+        8           3  Put Stack    Mid   0.011041
+        8           3  Put Stack   High   0.096664
+        9           2 Call   OLS    Low   0.020307
+        9           2 Call   OLS    Mid   0.217412
+        9           2 Call   OLS   High   0.137944
+        9           2 Call   MLP    Low  -0.444174
+        9           2 Call   MLP    Mid   0.023435
+        9           2 Call   MLP   High  -0.066994
+        9           2 Call  LSTM    Low  -0.182113
+        9           2 Call  LSTM    Mid   0.062362
+        9           2 Call  LSTM   High  -0.023378
+        9           2 Call Stack    Low  -0.135822
+        9           2 Call Stack    Mid   0.140140
+        9           2 Call Stack   High  -0.004299
+        9           2  Put   OLS    Low   0.129681
+        9           2  Put   OLS    Mid   0.229786
+        9           2  Put   OLS   High   0.178485
+        9           2  Put   MLP    Low  -0.150993
+        9           2  Put   MLP    Mid  -0.042991
+        9           2  Put   MLP   High   0.093804
+        9           2  Put  LSTM    Low  -0.048811
+        9           2  Put  LSTM    Mid   0.097047
+        9           2  Put  LSTM   High   0.097102
+        9           2  Put Stack    Low  -0.008909
+        9           2  Put Stack    Mid   0.033962
+        9           2  Put Stack   High   0.106721
+       10           1 Call   OLS    Low   0.077081
+       10           1 Call   OLS    Mid   0.070142
+       10           1 Call   OLS   High   0.062400
+       10           1 Call   MLP    Low  -0.510535
+       10           1 Call   MLP    Mid  -0.291822
+       10           1 Call   MLP   High  -0.263811
+       10           1 Call  LSTM    Low  -0.044772
+       10           1 Call  LSTM    Mid  -0.190856
+       10           1 Call  LSTM   High  -0.201924
+       10           1 Call Stack    Low  -0.148703
+       10           1 Call Stack    Mid   0.010967
+       10           1 Call Stack   High  -0.150146
+       10           1  Put   OLS    Low   0.078512
+       10           1  Put   OLS    Mid   0.176881
+       10           1  Put   OLS   High   0.164599
+       10           1  Put   MLP    Low  -0.040892
+       10           1  Put   MLP    Mid  -0.239199
+       10           1  Put   MLP   High  -0.184742
+       10           1  Put  LSTM    Low   0.015698
+       10           1  Put  LSTM    Mid  -0.010660
+       10           1  Put  LSTM   High  -0.058717
+       10           1  Put Stack    Low  -0.331264
+       10           1  Put Stack    Mid  -0.117779
+       10           1  Put Stack   High  -0.071989
+
+TABLE 6 — Vega-Sharpe sensitivity per cell
+  vega_sharpe              : half spread on entry (headline, as Table 1)
+  vega_sharpe_full_spread  : full spread (round trip)
+  vega_sharpe_oracle       : perfect-foresight forecast (pred = actual)
+----------------------------------------------------------------------
+ obs_bars  fcast_bars type model  vega_sharpe  vega_sharpe_full_spread  vega_sharpe_oracle
+        1          10 Call   OLS       0.5808                   0.5428              1.1641
+        1          10 Call   MLP       0.4191                   0.3835              1.1641
+        1          10 Call  LSTM       0.5505                   0.5132              1.1641
+        1          10 Call Stack       0.5942                   0.5560              1.1641
+        1          10  Put   OLS       0.4275                   0.3897              1.1887
+        1          10  Put   MLP       0.6263                   0.5850              1.1887
+        1          10  Put  LSTM       0.7368                   0.6929              1.1887
+        1          10  Put Stack       0.7333                   0.6896              1.1887
+        2           9 Call   OLS       0.5145                   0.4728              1.0959
+        2           9 Call   MLP       0.4162                   0.3761              1.0959
+        2           9 Call  LSTM       0.4910                   0.4500              1.0959
+        2           9 Call Stack       0.5229                   0.4813              1.0959
+        2           9  Put   OLS       0.4002                   0.3584              1.0767
+        2           9  Put   MLP       0.5378                   0.4933              1.0767
+        2           9  Put  LSTM       0.5090                   0.4648              1.0767
+        2           9  Put Stack       0.5159                   0.4715              1.0767
+        3           8 Call   OLS       0.4340                   0.3856              1.0408
+        3           8 Call   MLP       0.2937                   0.2483              1.0408
+        3           8 Call  LSTM       0.4518                   0.4034              1.0408
+        3           8 Call Stack       0.4361                   0.3880              1.0408
+        3           8  Put   OLS       0.3323                   0.2861              1.0424
+        3           8  Put   MLP       0.2647                   0.2195              1.0424
+        3           8  Put  LSTM       0.3909                   0.3435              1.0424
+        3           8  Put Stack       0.4687                   0.4198              1.0424
+        4           7 Call   OLS       0.3396                   0.2868              0.9791
+        4           7 Call   MLP       0.3087                   0.2564              0.9791
+        4           7 Call  LSTM       0.3473                   0.2945              0.9791
+        4           7 Call Stack       0.3806                   0.3265              0.9791
+        4           7  Put   OLS       0.3053                   0.2569              0.9363
+        4           7  Put   MLP       0.1788                   0.1317              0.9363
+        4           7  Put  LSTM       0.4346                   0.3842              0.9363
+        4           7  Put Stack       0.4031                   0.3525              0.9363
+        5           6 Call   OLS       0.2811                   0.2249              0.9198
+        5           6 Call   MLP       0.1636                   0.1097              0.9198
+        5           6 Call  LSTM       0.3362                   0.2780              0.9198
+        5           6 Call Stack       0.3207                   0.2629              0.9198
+        5           6  Put   OLS       0.2545                   0.2045              0.8892
+        5           6  Put   MLP       0.3583                   0.3062              0.8892
+        5           6  Put  LSTM       0.3893                   0.3367              0.8892
+        5           6  Put Stack       0.3569                   0.3045              0.8892
+        6           5 Call   OLS       0.2990                   0.2417              0.8747
+        6           5 Call   MLP       0.2695                   0.2124              0.8747
+        6           5 Call  LSTM       0.3451                   0.2863              0.8747
+        6           5 Call Stack       0.3307                   0.2722              0.8747
+        6           5  Put   OLS       0.2622                   0.2085              0.8351
+        6           5  Put   MLP       0.2745                   0.2208              0.8351
+        6           5  Put  LSTM       0.2713                   0.2176              0.8351
+        6           5  Put Stack       0.3083                   0.2539              0.8351
+        7           4 Call   OLS       0.2717                   0.2075              0.8152
+        7           4 Call   MLP       0.1796                   0.1170              0.8152
+        7           4 Call  LSTM       0.2709                   0.2063              0.8152
+        7           4 Call Stack       0.2807                   0.2160              0.8152
+        7           4  Put   OLS       0.2187                   0.1581              0.8099
+        7           4  Put   MLP       0.2093                   0.1489              0.8099
+        7           4  Put  LSTM       0.2488                   0.1878              0.8099
+        7           4  Put Stack       0.2223                   0.1617              0.8099
+        8           3 Call   OLS       0.2692                   0.1962              0.8064
+        8           3 Call   MLP       0.1131                   0.0434              0.8064
+        8           3 Call  LSTM       0.2602                   0.1869              0.8064
+        8           3 Call Stack       0.2079                   0.1363              0.8064
+        8           3  Put   OLS       0.1957                   0.1266              0.7583
+        8           3  Put   MLP       0.0387                  -0.0276              0.7583
+        8           3  Put  LSTM       0.2372                   0.1670              0.7583
+        8           3  Put Stack       0.1199                   0.0523              0.7583
+        9           2 Call   OLS       0.1442                   0.0549              0.7844
+        9           2 Call   MLP       0.0700                  -0.0170              0.7844
+        9           2 Call  LSTM       0.1144                   0.0262              0.7844
+        9           2 Call Stack       0.0993                   0.0116              0.7844
+        9           2  Put   OLS       0.1390                   0.0627              0.6809
+        9           2  Put   MLP       0.0862                   0.0112              0.6809
+        9           2  Put  LSTM       0.1273                   0.0511              0.6809
+        9           2  Put Stack       0.0908                   0.0153              0.6809
+       10           1 Call   OLS       0.0867                  -0.0259              0.8122
+       10           1 Call   MLP      -0.0677                  -0.1730              0.8122
+       10           1 Call  LSTM       0.0348                  -0.0762              0.8122
+       10           1 Call Stack       0.0662                  -0.0458              0.8122
+       10           1  Put   OLS       0.1301                   0.0341              0.6666
+       10           1  Put   MLP       0.0587                  -0.0356              0.6666
+       10           1  Put  LSTM       0.0244                  -0.0682              0.6666
+       10           1  Put Stack      -0.0207                  -0.1130              0.6666
+
+TABLE 7 — Vega-Sharpe summary per model (positive_* = cells > 0 out of 20)
+----------------------------------------------------------------------
+model  mean_half_spread  mean_full_spread  mean_oracle  positive_half  positive_full  cells
+  OLS            0.2943            0.2336       0.9088             20             19     20
+  MLP            0.2400            0.1805       0.9088             19             16     20
+ LSTM            0.3286            0.2673       0.9088             20             18     20
+Stack            0.3219            0.2607       0.9088             19             18     20
