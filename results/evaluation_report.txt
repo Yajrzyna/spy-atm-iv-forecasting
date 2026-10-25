@@ -1,4 +1,3 @@
-Run     : 004
 Date    : 2026-10-21 22:04:27
 Models  : OLS | MLP | LSTM | Stacking  [Rolling Window / IV]
 
